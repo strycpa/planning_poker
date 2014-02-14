@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Planning poker</title>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		io = io.connect();
+
+		io.on('mrdka', function(data) {
+			console.log(data);
+			document.getElementById("main").innerHTML = 'asdf';
+		});
+
+		io.emit('confirm', {confirmValue: confirm('qwer')});
+	</script>
+</head>
+<body>
+	<div id="main"></div>
+</body>
+</html>
