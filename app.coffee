@@ -1,9 +1,12 @@
 app = require('express.io')()
 app.http().io()
 
-app.io.route 'confirm', (req) ->
+app.io.route 'joinRoom', (req) ->
 	console.log req
-	req.io.emit 'mrdka', {foo:'bar'}
+	req.io.join req.data.room
+	req.io.room(req.data.room).broadcast 'userJoined', {
+		userName: req.data.userName
+	}
 
 # send
 app.get '/', (req, res) ->

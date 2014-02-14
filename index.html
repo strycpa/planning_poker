@@ -6,14 +6,25 @@
     <link rel="stylesheet" type="text/css" href="client/styles/styles.css">
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
+		getRoomName = function(){
+			return prompt('K jake mistnosti se chces pripojit?');
+		}
+		getUserName = function(){
+			return prompt('jmeno');
+		}
+
 		io = io.connect();
 
-		io.on('mrdka', function(data) {
-			console.log(data);
-			document.getElementById("main").innerHTML = 'asdf';
+		io.emit('joinRoom', {
+			room: getRoomName(),
+			userName: getUserName()
 		});
 
-		io.emit('confirm', {confirmValue: confirm('qwer')});
+
+		io.on('userJoined', function(data) {
+			console.log(data);
+			document.getElementById("main").innerHTML = 'mame noveho hlasujiciho ' + data.userName;
+		});
 	</script>
 </head>
 <body>
