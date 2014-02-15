@@ -4,18 +4,25 @@ var j3r;
 j3r = {};
 
 j3r.App = (function() {
-  function App(name) {
-    this.name = name;
-    this.socket = io.connect('http://192.168.218.98:1107');
-    this.socket.on('mrdka', function(data) {
-      return console.log(data);
-    });
+  function App() {
+    this.elements = {
+      header: $('#header-wrapper'),
+      info: $('#info-wrapper'),
+      content: $('#content-wrapper'),
+      footer: $('#footer-wrapper')
+    };
+    this.user = new j3r.User(io.connect(), this.elements);
+    return;
   }
 
-  App.prototype.getName = function() {
-    alert(this.name);
+  App.prototype.logInUser = function(mail) {
+    this.user.logIn(mail);
   };
 
   return App;
 
 })();
+
+j3r.changeContent = function(parentEl, content) {
+  return parentEl.empty().append(content);
+};
