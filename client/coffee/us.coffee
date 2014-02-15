@@ -21,7 +21,7 @@ class j3r.Us
 
   getUsItem: (itemData) ->
     usItem = $('<div class="us-item" data-us-item-id="' + id + '"><span class="us-item-title">
-          ' + itemData.title + '</span>' + itemData.description + '</div>')
+          ' + itemData.title + '</span><br>' + itemData.description + '</div>')
 
   startVoting: (id) ->
 #    to server - we are voting

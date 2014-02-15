@@ -39,7 +39,7 @@ j3r.Us = (function() {
   Us.prototype.getUsItem = function(itemData) {
     var usItem;
     return usItem = $('<div class="us-item" data-us-item-id="' + id + '"><span class="us-item-title">\
-          ' + itemData.title + '</span>' + itemData.description + '</div>');
+          ' + itemData.title + '</span><br>' + itemData.description + '</div>');
   };
 
   Us.prototype.startVoting = function(id) {
