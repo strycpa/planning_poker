@@ -46,7 +46,7 @@ writeToTp = (userStoryId, estimation) ->
 	no
 
 app.io.route 'user_log', (req) ->
-	user = getUserFromTP req.data.user.email
+	user = getUserFromTP req.data.user.mail
 	userTeams = getTeams user
 	userTeam = userTeams.pop()
 	req.session.user = user
