@@ -1,7 +1,7 @@
 app = require('express.io')()
 express = require('express.io')
 path = require('path')
-#tp = require('target-process')
+tp = require('server/tp')
 app.http().io()
 
 teams = {}
@@ -47,6 +47,9 @@ getUserStory = (id) ->
 	us = getUserStories req.session.team	#nekonzistence
 	us[id]
 
+writeToTp = (userStoryId, estimation) ->
+	no
+
 app.io.route 'user_log', (req) ->
 	user = req.data.user
 	req.session.email = user.email
@@ -85,8 +88,9 @@ app.io.route 'user_story_estimation', (req) ->
 		value: value
 
 app.io.route 'estimation_end', (req) ->
-	req.io.room(req.session.team).broadcast 'show_estimations',
-		estimations: estimations[req.session.team][req.data.userStoryId]
+	writeToTp req.data.userStoryId, req.data.estimation
+	req.io.room(req.session.team).broadcast 'show_estimation',
+		estimation: req.data.estimation
 
 app.io.route 'planning_end', (req) ->
 	req.io.room(req.session.team).broadcast 'disconnect'
