@@ -12,84 +12,94 @@ app.use express.static path.join __dirname, 'client'
 app.use express.cookieParser()
 app.use express.session {secret: 'Socialbakers Planning Poker'}
 
-userId = (user) ->
-	user.Id
+
+unTpUser = (user) ->
+	id: user.Id
+	email: user.Email
+	name: "#{user.FirstName} #{user.LastName}"
+	role: user.Role.Name
+
+unTpTeam = (team) ->
+	id: team.Id
+	name: team.Name
+
+unTpUserStory = (userStory) ->
+	id: userStory.Id
+	name: userStory.Name
+	description: userStory.Description
 
 isScrummaster = (teamId) ->
 	return yes unless teams[teamId]
 	no
 
-
-getUserFromTP = (email) ->
-	tp.getUser tp.getUserId email
-
-getTeams = (user) ->
-	teamIds = tp.getTeamIds userId user
-	for teamId in teamIds
-		teams[teamId] tp.getTeam teamId
-	teams
-
-getUserStories = (teamId) ->
-	tpUserStories = tp.getUserStories teamId
-	for userStory in tpUserStories
-		userStories[userStory.Id] =
-			id: userStory.Id
-			name: userStory.Name
-			description: userStory.Description
-	userStories
-
-getUserStory = (teamId, id) ->
-	us = getUserStories teamId
-	us[id]
-
 writeToTp = (userStoryId, estimation) ->
 	no
 
 app.io.route 'user_log', (req) ->
-	user = getUserFromTP req.data.user.mail
-	userTeams = getTeams user
-	userTeam = userTeams.pop()
-	req.session.user = user
-	req.session.team = userTeam
-	req.session.teamId = userTeam.Id
-	req.io.emit 'user_log_reply',
-		teams: userTeams #array of int, currently an object
+	tp.getUserId req.data.mail, (err, id) ->
+		return err if err
+		tp.getUser id, (err, user) ->
+			return err if err
+			user = unTpUser user
+			req.session.user = user
+
+			tp.getTeamIds user.id, (err, teamIds) ->
+				return err if err
+				for teamId in teamIds	#only one team
+					req.session.teamId = teamId
+
+					tp.getTeam teamId, (err, team) ->
+						return err if err
+						teams[teamId] = team
+						req.session.team = team
+						req.io.join team
+
+						req.io.emit 'user_log_reply',
+							teams: teams #array of int, currently an object
 
 
 app.io.route 'user_choose_team', (req) ->
-#	team = req.data.team
-#	user = req.data.user
-#
-#	req.session.team = team
-#	req.session.teamId = teamId
-#	req.session.user = user
-
 	req.io.join req.session.team
 	req.io.emit 'user_enter_team',
 		role: if isScrummaster req.session.teamId then 'sm' else 'monkey'
-		team: req.session.team
+		team: [req.session.team]
 
 
 app.io.route 'fetch_user_stories', (req) ->
-	req.io.emit 'user_stories_list',
-		list: getUserStories req.session.teamId
+	tp.getUserStories req.session.teamId, (err, stories) ->
+		return err if err
+		for story in stories
+			story = unTpUserStory story
+			userStories[req.session.teamId] ?= {}
+			userStories[req.session.teamId][story.id] = story
+		req.io.emit 'user_stories_list',
+			list: userStories[req.session.teamId]
+
 
 app.io.route 'user_story_for_estimation', (req) ->
-	req.io.room(req.session.team).broadcast 'user_story_estimate', getUserStory req.session.teamId, req.data.id
+#	if not userStories[req.session.teamId]?
+#		tp.getUserStories req.session.teamId, (err, res) ->
+#			return err if err
+#			req.io.room(req.session.team).broadcast 'user_story_estimate', userStories[req.session.teamId][id]	#to samy
+#	else
+	req.io.room(req.session.team).broadcast 'user_story_estimate', userStories[req.session.teamId][req.data.id]	#to samy
+
 
 app.io.route 'user_story_estimation', (req) ->
 	value = req.data.value
-	user = userId req.session.user
+	user = req.session.user.id
 	estimations[req.session.team][req.data.userStoryId][user] = value
 	req.io.room(req.session.team).broadcast 'user_story_estimated',
 		user: user
 		value: value
+
 
 app.io.route 'estimation_end', (req) ->
 	writeToTp req.data.userStoryId, req.data.estimation
 	req.io.room(req.session.team).broadcast 'show_estimation',
 		estimation: req.data.estimation
 
+		
 app.io.route 'planning_end', (req) ->
 	req.io.room(req.session.team).broadcast 'disconnect'
 	delete userStories[req.session.team]
