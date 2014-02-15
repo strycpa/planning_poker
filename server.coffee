@@ -94,12 +94,13 @@ app.io.route 'user_story_estimation', (req) ->
 		value: value
 
 
-app.io.route 'estimation_end', (req) ->
-	writeToTp req.data.userStoryId, req.data.estimation
-	req.io.room(req.session.team).broadcast 'show_estimation',
-		estimation: req.data.estimation
+app.io.route 'user_story_estimation_end', (req) ->
+	tp.setEffort req.data.id, req.data.effort, (err, res) ->
+		return err if err
+		req.io.room(req.session.team).broadcast 'show_effort',
+			effort: req.data.effort
 
-		
+
 app.io.route 'planning_end', (req) ->
 	req.io.room(req.session.team).broadcast 'disconnect'
 	delete userStories[req.session.team]
