@@ -33,6 +33,6 @@ app.io.route 'joinRoom', (req) ->
 
 # send
 app.get '/', (req, res) ->
-	res.sendfile __dirname + '/index.html'
+	res.sendfile __dirname + '/client.html'
 
 app.listen 2014
