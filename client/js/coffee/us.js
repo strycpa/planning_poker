@@ -49,7 +49,7 @@ j3r.Us = (function() {
     });
     wrapper = $('<div id="voting-header"></div>');
     wrapper.append(this.item.getUsItem(id, this.data[id]));
-    inputConfirm = $('<input id="votin-input">');
+    inputConfirm = $('<input id="voting-input">');
     confirmBtn = $('<button id="voting-confirm">Confirm voting</button>');
     wrapper.append(inputConfirm);
     wrapper.append(confirmBtn);
