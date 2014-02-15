@@ -1,18 +1,13 @@
 class j3r.Us
-  construct (@io, @elements, data) ->
-    @data = {}
-    for itemData of data
-      @data[itemData.id] =
-        title: itemData.title
-        description: itemData.description
+  constructor: (@io, @elements, @data) ->
 
-  getUsList: (data) ->
+  getUsList: ->
     usEl = $('<div id="list-choose-us"></div>')
     if @data.length > 0
       ulEl = $('<ul></ul>')
-      for id, itemData of @data
+      for itemData in @data
         liEl = $('<li></li>')
-        liEl.append @getUsItem id, itemData
+        liEl.append @getUsItem itemData
         ulEl.append liEl
       usEl.append ulEl
     else
@@ -20,10 +15,10 @@ class j3r.Us
     usEl
 
   getUsItem: (itemData) ->
-    usItem = $('<div class="us-item" data-us-item-id="' + id + '"><span class="us-item-title">
+    usItem = $('<div class="us-item" data-us-item-id="' + itemData.id + '"><span class="us-item-title">
           ' + itemData.title + '</span><br>' + itemData.description + '</div>')
 
-  startVoting: (id) ->
+  startVoting: (id) =>
 #    to server - we are voting
     @io.emit 'user_story_for_estimation', id: @item.id
     wrapper = $('<div id="voting-header"></div>')
@@ -33,7 +28,7 @@ class j3r.Us
     wrapper.append inputConfirm
     wrapper.append confirmBtn
 #    action after confirm voting
-    confirmBtn.on 'click', ->
+    confirmBtn.on 'click', =>
       if inputConfirm.val() != ''
         @io.emit 'user_story_estimation_end', estimation: inputConfirm.val()
       else

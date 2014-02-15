@@ -5,7 +5,7 @@ tp = require './server/tp'
 app.http().io()
 
 teams = {}
-userStories = {}
+userStories = null
 estimations = {}
 
 app.use express.static path.join __dirname, 'client'
@@ -29,6 +29,7 @@ convertUserStory = (userStory) ->
 	description: userStory.Description
 
 isScrummaster = (teamId) ->
+	return yes
 	return yes unless teams[teamId]
 	no
 
@@ -71,19 +72,16 @@ app.io.route 'fetch_user_stories', (req) ->
 		return err if err
 		for story in stories
 			story = convertUserStory story
-			userStories[req.session.teamId] ?= {}
-			userStories[req.session.teamId][story.id] = story
-		req.io.emit 'user_stories_list',
-			list: userStories[req.session.teamId]
+			userStories ?= {}
+			userStories[req.session.teamId] ?= []
+			userStories[req.session.teamId].push story
+		req.io.emit 'user_stories_list', userStories[req.session.teamId]
 
 
 app.io.route 'user_story_for_estimation', (req) ->
-#	if not userStories[req.session.teamId]?
-#		tp.getUserStories req.session.teamId, (err, res) ->
-#			return err if err
-#			req.io.room(req.session.team).broadcast 'user_story_estimate', userStories[req.session.teamId][id]	#to samy
-#	else
-	req.io.room(req.session.team).broadcast 'user_story_estimate', userStories[req.session.teamId][req.data.id]	#to samy
+	for userStory in userStories[req.session.teamId]
+		if userStory.id is req.data.id
+			req.io.room(req.session.team).broadcast 'user_story_estimate', userStory
 
 
 app.io.route 'user_story_estimation', (req) ->

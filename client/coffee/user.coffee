@@ -11,7 +11,7 @@ class  j3r.User
       mail: @userEmail
 
     #    login response
-    @io.on 'user_log_reply', (data) ->
+    @io.on 'user_log_reply', (data) =>
       if data.teams.length > 0
         @chooseTeam data.teams
       return
@@ -30,14 +30,14 @@ class  j3r.User
       ulEl = $('<ul></ul>')
       for team of teams
         liEl = $('<li>' + team.title + '</li>')
-        liEl.on 'click', ->
+        liEl.on 'click', =>
           @chooseTeam team.id
           return
         ulEl.append liEl
       teamsEl.append ulEl
     else
       teamsEl.append $('<div id="msg-info">You are in none of our fucking teams</div>')
-    j3r.changeContent j3r.App.elements.content, teamsEl
+    j3r.changeContent @elements.content, teamsEl
     return
 
   chooseTeam: (id) ->
@@ -45,11 +45,11 @@ class  j3r.User
     return
 
   _comunication: () ->
-    @io.on 'user_enter_team', (data) ->
+    @io.on 'user_enter_team', (data) =>
       @userTeam = data.team
-      if data.role = 'sm'
+      if data.role is 'sm'
         @user = new j3r.SmUser @io, @elements
-      else if data.role = 'monkey'
+      else if data.role is 'monkey'
         @user = new j3r.MonkeyUser @io, @elements
       else
         console.log 'whoopsie...wrong role returned'
@@ -57,34 +57,35 @@ class  j3r.User
     return
 
 class j3r.SmUser
-  construct: (@io, @elements) ->
+  constructor: (@io, @elements) ->
     msg = '<div class="msg-info">waitin for us</div>'
     j3r.changeContent @elements.content, msg
-    _comunication()
+    @_comunication()
     return
 
   _comunication: ->
-#    receive us list
-    @io.on 'user_stories_list', (data) ->
-      @us = new j3r.Us @io, data
+#   receive us list
+    @io.on 'user_stories_list', (data) =>
+      @us = new j3r.Us @io, @elements, data
       list = @us.getUsList()
-#    start voting
-      list.next('li').on 'click', ->
+      j3r.changeContent @elements.content, list
+      list.next('li').on 'click', =>
         selectedUsId = @.next('.us-item').attr('data-us-item-id')
         @us.startVoting selectedUsId
         return
+      return
 
 #    send me list of us
     @io.emit 'fetch_user_stories'
 
 
     #    receive votes
-    @io.on 'user_story_estimated', (data) ->
+    @io.on 'user_story_estimated', (data) =>
       @us.addVote data
       return
 
 #    after voting...init new
-    @io.on 'show-estimation', (data) ->
+    @io.on 'show-estimation', (data) =>
       @io.emit 'fetch_user_stories'
       return
 
@@ -94,16 +95,16 @@ class j3r.SmUser
 
 
 class j3r.MonkeyUser
-  construct: (@io, @elements) ->
+  constructor: (@io, @elements) ->
     @waitinMessage()
-    _comunication()
+    @_comunication()
 
   _comunication: ->
-    @io.on 'user_story_estimate', (data) ->
+    @io.on 'user_story_estimate', (data) =>
       @startVoting data
       return
 
-    @io.on 'show_estimation', (data) ->
+    @io.on 'show_estimation', (data) =>
       @waitinMessage()
       return
 
@@ -125,7 +126,7 @@ class j3r.MonkeyUser
       for j in [0..2] by + 1
         selection = numbers[i+j]
         cell = $('<td><span class="card-item">' + selection + '</span></td>')
-        cell.on 'click', ->
+        cell.on 'click', =>
           @io.emit 'user_story_estimation', value: selection
           @afterSelectedNumber()
         row.append cell

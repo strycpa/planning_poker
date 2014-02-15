@@ -7,6 +7,7 @@ j3r.User = (function() {
   }
 
   User.prototype.logIn = function(userEmail) {
+    var _this = this;
     this.userEmail = userEmail;
     j3r.changeContent(this.elements.content, 'loguju');
     this.io.emit('user_log', {
@@ -14,7 +15,7 @@ j3r.User = (function() {
     });
     this.io.on('user_log_reply', function(data) {
       if (data.teams.length > 0) {
-        this.chooseTeam(data.teams);
+        _this.chooseTeam(data.teams);
       }
     });
   };
@@ -27,7 +28,8 @@ j3r.User = (function() {
   };
 
   User.prototype.renderChooseTeam = function(teams) {
-    var liEl, team, teamsEl, ulEl;
+    var liEl, team, teamsEl, ulEl,
+      _this = this;
     teamsEl = $('<div id="list-choose-teams" class="component">\
       <span class="headline">Choose your fucking team</span></div>');
     if (teams.length > 0) {
@@ -35,7 +37,7 @@ j3r.User = (function() {
       for (team in teams) {
         liEl = $('<li>' + team.title + '</li>');
         liEl.on('click', function() {
-          this.chooseTeam(team.id);
+          _this.chooseTeam(team.id);
         });
         ulEl.append(liEl);
       }
@@ -43,7 +45,7 @@ j3r.User = (function() {
     } else {
       teamsEl.append($('<div id="msg-info">You are in none of our fucking teams</div>'));
     }
-    j3r.changeContent(j3r.App.elements.content, teamsEl);
+    j3r.changeContent(this.elements.content, teamsEl);
   };
 
   User.prototype.chooseTeam = function(id) {
@@ -53,12 +55,13 @@ j3r.User = (function() {
   };
 
   User.prototype._comunication = function() {
+    var _this = this;
     this.io.on('user_enter_team', function(data) {
-      this.userTeam = data.team;
-      if (data.role = 'sm') {
-        this.user = new j3r.SmUser(this.io, this.elements);
-      } else if (data.role = 'monkey') {
-        this.user = new j3r.MonkeyUser(this.io, this.elements);
+      _this.userTeam = data.team;
+      if (data.role === 'sm') {
+        _this.user = new j3r.SmUser(_this.io, _this.elements);
+      } else if (data.role === 'monkey') {
+        _this.user = new j3r.MonkeyUser(_this.io, _this.elements);
       } else {
         console.log('whoopsie...wrong role returned');
       }
@@ -70,34 +73,35 @@ j3r.User = (function() {
 })();
 
 j3r.SmUser = (function() {
-  function SmUser() {}
-
-  SmUser.prototype.construct = function(io, elements) {
+  function SmUser(io, elements) {
     var msg;
     this.io = io;
     this.elements = elements;
     msg = '<div class="msg-info">waitin for us</div>';
     j3r.changeContent(this.elements.content, msg);
-    _comunication();
-  };
+    this._comunication();
+    return;
+  }
 
   SmUser.prototype._comunication = function() {
+    var _this = this;
     this.io.on('user_stories_list', function(data) {
       var list;
-      this.us = new j3r.Us(this.io, data);
-      list = this.us.getUsList();
-      return list.next('li').on('click', function() {
+      _this.us = new j3r.Us(_this.io, _this.elements, data);
+      list = _this.us.getUsList();
+      j3r.changeContent(_this.elements.content, list);
+      list.next('li').on('click', function() {
         var selectedUsId;
-        selectedUsId = this.next('.us-item').attr('data-us-item-id');
-        this.us.startVoting(selectedUsId);
+        selectedUsId = _this.next('.us-item').attr('data-us-item-id');
+        _this.us.startVoting(selectedUsId);
       });
     });
     this.io.emit('fetch_user_stories');
     this.io.on('user_story_estimated', function(data) {
-      this.us.addVote(data);
+      _this.us.addVote(data);
     });
     this.io.on('show-estimation', function(data) {
-      this.io.emit('fetch_user_stories');
+      _this.io.emit('fetch_user_stories');
     });
   };
 
@@ -106,21 +110,20 @@ j3r.SmUser = (function() {
 })();
 
 j3r.MonkeyUser = (function() {
-  function MonkeyUser() {}
-
-  MonkeyUser.prototype.construct = function(io, elements) {
+  function MonkeyUser(io, elements) {
     this.io = io;
     this.elements = elements;
     this.waitinMessage();
-    return _comunication();
-  };
+    this._comunication();
+  }
 
   MonkeyUser.prototype._comunication = function() {
+    var _this = this;
     this.io.on('user_story_estimate', function(data) {
-      this.startVoting(data);
+      _this.startVoting(data);
     });
     return this.io.on('show_estimation', function(data) {
-      this.waitinMessage();
+      _this.waitinMessage();
     });
   };
 
@@ -134,7 +137,8 @@ j3r.MonkeyUser = (function() {
   };
 
   MonkeyUser.prototype.getNumbers = function() {
-    var cardsTable, cardsWrapper, cell, i, j, numbers, row, selectedCardsWrapper, selection, _i, _j;
+    var cardsTable, cardsWrapper, cell, i, j, numbers, row, selectedCardsWrapper, selection, _i, _j,
+      _this = this;
     numbers = [0, 1, 2, 3, 5, 8, 13, 21, '?'];
     cardsWrapper = $('<div id="cards-wrapper"></div>');
     selectedCardsWrapper = $('<div id="cards-selected"></div>');
@@ -145,10 +149,10 @@ j3r.MonkeyUser = (function() {
         selection = numbers[i + j];
         cell = $('<td><span class="card-item">' + selection + '</span></td>');
         cell.on('click', function() {
-          this.io.emit('user_story_estimation', {
+          _this.io.emit('user_story_estimation', {
             value: selection
           });
-          return this.afterSelectedNumber();
+          return _this.afterSelectedNumber();
         });
         row.append(cell);
       }
