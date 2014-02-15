@@ -1,9 +1,12 @@
 {
-	"name": "planningPoker",
-	"version": "0.0.0",
-	"main": "app.coffee",
-	"dependencies": {
-		"express.io": "~1.1.12"
-	},
-	"author": "Pavel Stryc, Jan Koren, Jan Navrat - Socialbakers"
+  "name": "planningPoker",
+  "version": "0.0.0",
+  "main": "app.coffee",
+  "dependencies": {
+    "express.io": "~1.1.12",
+    "async": "~0.2.10",
+    "moment": "~2.5.1",
+    "request": "~2.33.0"
+  },
+  "author": "Pavel Stryc, Jan Koren, Jan Navrat - Socialbakers"
 }

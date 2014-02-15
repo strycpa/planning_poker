@@ -1,0 +1,14 @@
+tp = require './server/tp'
+
+jan_navrat_id = 296
+jan_navrat_email = 'jan.navrat@socialbakers.com'
+team_id = 21927
+
+tp.getUser jan_navrat_id, (err, user) ->
+#	console.log user
+
+tp.getUserId jan_navrat_email, (err, userId) ->
+#	console.log userId
+
+tp.getTeam team_id, (err, team) ->
+	console.log team
