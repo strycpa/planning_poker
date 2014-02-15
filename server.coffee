@@ -1,8 +1,12 @@
 app = require('express.io')()
+express = require('express.io')
+path = require('path')
 app.http().io()
 
 rooms = {}
 users = {}
+
+app.use(express.static(path.join(__dirname, 'client')));
 
 userUid = (user) ->
 	user.email
@@ -31,8 +35,9 @@ app.io.route 'joinRoom', (req) ->
 	}
 	console.log rooms
 
-# send
-app.get '/', (req, res) ->
-	res.sendfile __dirname + '/client.html'
+## send
+#app.get '/', (req, res) ->
+#	res.sendfile __dirname + '/client.html'
+
 
 app.listen 2014
