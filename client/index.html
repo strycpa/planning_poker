@@ -5,33 +5,35 @@
 	<title>Planning poker</title>
     <link rel="stylesheet" type="text/css" href="styles/styles.css">
 	<script src="socket.io/socket.io.js"></script>
+	<script src="js/jquery-1.7.1.min.js"></script>
+	<script src="js/coffee/app.js"></script>
+	<script src="js/coffee/user.js"></script>
 	<script>
-		getTeamName = function(){
-			return prompt('K jake mistnosti se chces pripojit?');
-		}
-		getUser = function(){
-			email = prompt('email');
-			return {mail: email, name: email};
-		}
+        $(document).ready(function(){
+            var app = new j3r.App();
+            <!--allready login-->
+            if(window.localStorage.ppUser != null) {
+                app.logInUser(window.localStorage.ppUser);
+            }
+            var login = function(){
+                var mail = $('#pp_login').val();
+                window.localStorage.ppUser = mail;
+                app.logInUser(mail);
+            }
+        });
 
-		io = io.connect();
-
-		io.emit('user_log', {
-			team: getTeamName(),
-			user: getUser()
-		});
-
-
-		io.on('userJoined', function(data) {
-			console.log(data);
-			document.getElementById("main").innerHTML = 'mame noveho hlasujiciho ' + data.userName;
-		});
-
-		asdf = function(){console.log('emituju asdf');io.emit('asdf');}
-	</script>
+    </script>
 </head>
 <body>
-    <img src="resources/pics/teletubbies.jpg">
-	<button onclick="asdf()">hovno</button>
+    <div id="main-wrapper">
+        <div id="header-wrapper"></div>
+        <div id="info-wrapper"></div>
+        <div id="content-wrapper">
+            <p>tady bude gugl. zatim vloz jmeno</p>
+            <input id="pp_login" type="text">
+            <button onclick="login()">kli kni</button>
+        </div>
+        <div id="footer-wrapper"></div>
+    </div>
 </body>
 </html>
