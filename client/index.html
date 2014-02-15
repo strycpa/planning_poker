@@ -6,18 +6,18 @@
     <link rel="stylesheet" type="text/css" href="styles/styles.css">
 	<script src="socket.io/socket.io.js"></script>
 	<script>
-		getRoomName = function(){
+		getTeamName = function(){
 			return prompt('K jake mistnosti se chces pripojit?');
 		}
 		getUser = function(){
 			email = prompt('email');
-			return {email: email, name: email};
+			return {mail: email, name: email};
 		}
 
 		io = io.connect();
 
-		io.emit('joinRoom', {
-			room: getRoomName(),
+		io.emit('user_log', {
+			team: getTeamName(),
 			user: getUser()
 		});
 
@@ -26,10 +26,12 @@
 			console.log(data);
 			document.getElementById("main").innerHTML = 'mame noveho hlasujiciho ' + data.userName;
 		});
+
+		asdf = function(){console.log('emituju asdf');io.emit('asdf');}
 	</script>
 </head>
 <body>
     <img src="resources/pics/teletubbies.jpg">
-	<button>hovno</button>
+	<button onclick="asdf()">hovno</button>
 </body>
 </html>

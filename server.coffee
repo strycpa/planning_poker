@@ -3,37 +3,57 @@ express = require('express.io')
 path = require('path')
 app.http().io()
 
-rooms = {}
+teams = {}
 users = {}
 
-app.use(express.static(path.join(__dirname, 'client')));
+app.use express.static path.join __dirname, 'client'
+app.use express.cookieParser()
+app.use express.session {secret: 'Socialbakers Planning Poker'}
 
 userUid = (user) ->
-	user.email
+	user.mail
 
-addUserToRoom = (room, user) ->
-	rooms[room] ?= {}
-	rooms[room][userUid user] = user
+addUser = (user) ->
 	users[userUid user] ?= []
-	users[userUid user].push room
+	yes
 
-removeUserFromRoom = (room, user) ->
-	delete rooms[room][userUid user]
-	delete users[userUid user][room]
+addTeam = (team) ->
+	teams[team] ?= []
+	yes
 
-isScrummaster = (room) ->
-	rooms[room]?.length is 1
+addUserToTeam = (team, user) ->
+	teams[team] ?= {}
+	teams[team][userUid user] = user
+	users[userUid user] ?= []
+	users[userUid user].push team
 
-app.io.route 'joinRoom', (req) ->
-	room = req.data.room
-	user = req.data.user
-	addUserToRoom room, user
+removeUserFromTeam = (team, user) ->
+	delete teams[team][userUid user]
+	delete users[userUid user][team]
 
-	req.io.room(room).broadcast 'userJoined', {
-		user: user
-		isScrumMaster: isScrummaster room
+isScrummaster = (team) ->
+	teams[team]?.length is 1
+
+app.io.route 'user_log', (req) ->
+	req.session.loginDate = new Date().toString()
+	req.io.emit 'user_log_reply', {
+		logged: addUser req.data.user
+		teams: teams
 	}
-	console.log rooms
+
+app.io.route 'user_choose_team', (req) ->
+	team = req.data.team
+	user = req.data.user
+
+	req.session.team = team
+	req.session.user = user
+	addUserToTeam team, user	#je to vubec potreba?
+
+	req.io.join team
+	req.io.team(team).broadcast 'user_enter_team', {
+		role: if isScrummaster team then 'sm' else 'monkey'
+		team: teams[team]
+	}
 
 ## send
 #app.get '/', (req, res) ->
