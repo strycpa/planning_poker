@@ -9,15 +9,16 @@
 		getRoomName = function(){
 			return prompt('K jake mistnosti se chces pripojit?');
 		}
-		getUserName = function(){
-			return prompt('jmeno');
+		getUser = function(){
+			email = prompt('email');
+			return {email: email, name: email};
 		}
 
 		io = io.connect();
 
 		io.emit('joinRoom', {
 			room: getRoomName(),
-			userName: getUserName()
+			user: getUser()
 		});
 
 
