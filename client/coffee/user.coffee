@@ -24,7 +24,7 @@ class  j3r.User
     return
 
   renderChooseTeam: (teams) ->
-    teamsEl = $('<div id="teams-choose"></div>')
+    teamsEl = $('<div id="list-choose-teams"></div>')
     if teams.length > 0
       ulEl = $('<ul></ul>')
       for team of teams
@@ -44,8 +44,52 @@ class  j3r.User
     return
 
   _listenComunication: () ->
-    @io.on 'user_enter_team', (role) ->
-#      todo role
+    @io.on 'user_enter_team', (data) ->
+      @userTeam = data.team
+      if data.role = 'sm'
+        @user = new j3r.SmUser @io, @elements
+      else if data.role = 'monkey'
+        @user = new j3r.MonkeyUser @io, @elements
+      else
+        console.log 'whoopsie...wrong role returned'
       return
     return
+
+class j3r.SmUser
+  construct: (@io, @elements) ->
+    _listenComunication()
+    @io.emit 'fetch_user_stories'
+    return
+
+  _listenComunication: ->
+    @io.on 'user_stories_list', (data) ->
+      @us = new j3r.Us @io, data
+      list = @us.getUsList()
+#    start voting
+      list.next('li').on 'click', ->
+        selectedUsId = @.next('.us-item').attr('data-us-item-id')
+        @us.startVoting selectedUsId
+        return
+
+#    receive votes
+    @io.on 'user_story_estimated', (data) ->
+      @us.addVote data
+      return
+
+#    after voting...init new
+    @io.on 'show-estimation', (data) ->
+      @io.emit 'fetch_user_stories'
+      return
+
+    return
+
+
+
+
+class j3r.MonkeyUser
+  construct: (@io, @elements) ->
+    _listenComunication()
+
+  _listenComunication: ->
+
 
