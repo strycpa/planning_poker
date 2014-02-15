@@ -13,19 +13,19 @@ app.use express.cookieParser()
 app.use express.session {secret: 'Socialbakers Planning Poker'}
 
 
-unTpUser = (user) ->
+convertUser = (user) ->
 	id: user.Id
 	email: user.Email
 	name: "#{user.FirstName} #{user.LastName}"
 	role: user.Role.Name
 
-unTpTeam = (team) ->
+convertTeam = (team) ->
 	id: team.Id
-	name: team.Name
+	title: team.Name
 
-unTpUserStory = (userStory) ->
+convertUserStory = (userStory) ->
 	id: userStory.Id
-	name: userStory.Name
+	title: userStory.Name
 	description: userStory.Description
 
 isScrummaster = (teamId) ->
@@ -40,7 +40,7 @@ app.io.route 'user_log', (req) ->
 		return err if err
 		tp.getUser id, (err, user) ->
 			return err if err
-			user = unTpUser user
+			user = convertUser user
 			req.session.user = user
 
 			tp.getTeamIds user.id, (err, teamIds) ->
@@ -50,26 +50,27 @@ app.io.route 'user_log', (req) ->
 
 					tp.getTeam teamId, (err, team) ->
 						return err if err
+						team = convertTeam team
 						teams[teamId] = team
 						req.session.team = team
 						req.io.join team
 
 						req.io.emit 'user_log_reply',
-							teams: teams #array of int, currently an object
+							teams: [team]
 
 
 app.io.route 'user_choose_team', (req) ->
 	req.io.join req.session.team
 	req.io.emit 'user_enter_team',
 		role: if isScrummaster req.session.teamId then 'sm' else 'monkey'
-		team: [req.session.team]
+		team: req.session.team
 
 
 app.io.route 'fetch_user_stories', (req) ->
 	tp.getUserStories req.session.teamId, (err, stories) ->
 		return err if err
 		for story in stories
-			story = unTpUserStory story
+			story = convertUserStory story
 			userStories[req.session.teamId] ?= {}
 			userStories[req.session.teamId][story.id] = story
 		req.io.emit 'user_stories_list',
