@@ -19,6 +19,8 @@ team_builder_id = 21927 # Back-end team
 
 jan_navrat_id = 296
 
+us_id = 31274
+
 role_dev = 1
 role_smaster = 7
 
@@ -49,6 +51,21 @@ exports.getUserStories = (teamId, cb) ->
 		return cb err if err
 		return cb null, userStories
 
+exports.setEffort = (userStoryId, effort, cb) ->
+	setUserStoryEffort userStoryId, effort, (err, result) ->
+		return cb err if err
+		return cb null, result
+
+
+
+
+postRequest = (url, query, cb) ->
+	options =
+		url: url
+		json: query
+	request.post options, (err, req, body) ->
+		return cb err if err
+		return cb null, body
 
 # make TP API request, it handles paging
 makeRequest = (originalUrl, howMany, page, cb) ->
@@ -115,32 +132,6 @@ Array::unique = ->
 
 
 
-teamIterations = (id, cb) ->
-	url = buildUrl [ "TeamIterations" ], [
-		"Team.id eq #{id}",
-		"StartDate gte '#{moment().format("YYYY-MM-DD")}'"
-	], { orderByAsc: "StartDate"} #, include: "[Id,StartDate,Duration]" }
-
-	console.log "HURRAY"
-	console.log url
-
-	makeRequest url, 1, 0, (err, data) ->
-		console.log "ERR #{err}"
-		console.log "DATA #{data}"
-
-		return
-
-		return cb err, null, null if err
-		iterationStart = moment(objToList(data, "StartDate")[0]).startOf('day')
-		duration = objToList(data, "Duration")[0]
-
-		url = buildUrl [ "Assignables" ], [
-			"TeamIterations.id in (#{objToList(data, "Id").join()})",
-			"EntityType.Id in (#{userStoryId},#{bugId})"
-		], { include: "[EffortToDo, Effort]" }
-
-		makeRequest url, 0, 0, (err, data) -> cb err, data, iterationStart, duration
-
 
 getUserById = (id, cb) ->
 	url = buildUrl [ "Users" ], [
@@ -191,16 +182,51 @@ getTeamIdsByUserId = (userId, cb) ->
 			result.push teamMember.Team.Id
 		return cb null, result
 
-getUserStoriesByTeamId = (teamId, cb) ->
-	url = buildUrl [ "UserStories" ], [
+
+
+
+getNextTeamIterationId = (teamId, cb) ->
+	url = buildUrl [ "TeamIterations" ], [
 		"Team.id eq #{teamId}",
-		"Effort eq 0"
-	], {}
+		"StartDate gte '#{moment().format("YYYY-MM-DD")}'"
+	], { orderBy: "StartDate"} #, include: "[Id,StartDate,Duration]" }
+	makeRequest url, 1, 0, (err, data) ->
+		return cb err if err
+		return cb null, data[0].Id
+
+
+getUserStoriesByTeamId = (teamId, cb) ->
+	getNextTeamIterationId teamId, (err, nextTeamIterationId) ->
+		return cb err if err
+		url = buildUrl [ "UserStories" ], [
+			"Team.id eq #{teamId}",
+			"TeamIteration.id eq #{nextTeamIterationId}",
+			"Effort eq 0"
+		], {include: "[Name, Description, Project, Release, Iteration, TeamIteration, Team, Priority, EntityState]"}
+		makeRequest url, 100, 0, (err, userStories) ->
+			return cb err if err
+			return cb null, userStories
+
+
+getRoleEffortId = (userStoryId, roleId, cb) ->
+	url = buildUrl [ "RoleEfforts" ], [
+		"Assignable.Id eq #{userStoryId}",
+		"Role.Id eq #{roleId}",
+		# "TeamIteration.id eq #{nextTeamIterationId}",
+		# "Effort eq 0"
+	], {}#include: "[Name, Description, Project, Release, Iteration, TeamIteration, Team, Priority, EntityState]"}
 	makeRequest url, 100, 0, (err, userStories) ->
 		return cb err if err
-		return cb null, userStories
-		# result = []
-		# for teamMember in teamMembers
-		# 	result.push teamMember.Team.Id
-		# return cb null, result
+		return cb null, userStories[0].Id
+
+setUserStoryEffort = (userStoryId, effort, cb) ->
+	roleId = role_dev
+	getRoleEffortId userStoryId, roleId, (err, roleEffortId) ->
+		return cb err if err
+		url = buildUrl [ "RoleEfforts/#{roleEffortId}" ], [], {}
+
+		postRequest url, {Effort:effort}, (err, body) ->
+			return cb err if err
+			return cb body if body.Effort isnt effort
+			cb null, yes
 
