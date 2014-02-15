@@ -28,7 +28,7 @@ class j3r.Us
     @io.emit 'user_story_for_estimation', id: @item.id
     wrapper = $('<div id="voting-header"></div>')
     wrapper.append @item.getUsItem id, @data[id]
-    inputConfirm = $('<input id="votin-input">')
+    inputConfirm = $('<input id="voting-input">')
     confirmBtn = $('<button id="voting-confirm">Confirm voting</button>')
     wrapper.append inputConfirm
     wrapper.append confirmBtn

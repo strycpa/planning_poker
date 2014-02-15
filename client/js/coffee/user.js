@@ -28,7 +28,8 @@ j3r.User = (function() {
 
   User.prototype.renderChooseTeam = function(teams) {
     var liEl, team, teamsEl, ulEl;
-    teamsEl = $('<div id="list-choose-teams"></div>');
+    teamsEl = $('<div id="list-choose-teams" class="component">\
+      <span class="headline">Choose your fucking team</span></div>');
     if (teams.length > 0) {
       ulEl = $('<ul></ul>');
       for (team in teams) {
@@ -40,7 +41,7 @@ j3r.User = (function() {
       }
       teamsEl.append(ulEl);
     } else {
-      teamsEl.append($('<div id="msg-info">you are in none of our fucking teams</div>'));
+      teamsEl.append($('<div id="msg-info">You are in none of our fucking teams</div>'));
     }
     j3r.changeContent(j3r.App.elements.content, teamsEl);
   };
