@@ -19,6 +19,8 @@ team_builder_id = 21927 # Back-end team
 
 jan_navrat_id = 296
 
+us_id = 31274
+
 role_dev = 1
 role_smaster = 7
 
@@ -49,6 +51,21 @@ exports.getUserStories = (teamId, cb) ->
 		return cb err if err
 		return cb null, userStories
 
+exports.setEffort = (userStoryId, effort, cb) ->
+	setUserStoryEffort userStoryId, effort, (err, result) ->
+		return cb err if err
+		return cb null, result
+
+
+
+
+postRequest = (url, query, cb) ->
+	options =
+		url: url
+		json: query
+	request.post options, (err, req, body) ->
+		return cb err if err
+		return cb null, body
 
 # make TP API request, it handles paging
 makeRequest = (originalUrl, howMany, page, cb) ->
@@ -191,5 +208,25 @@ getUserStoriesByTeamId = (teamId, cb) ->
 			return cb null, userStories
 
 
+getRoleEffortId = (userStoryId, roleId, cb) ->
+	url = buildUrl [ "RoleEfforts" ], [
+		"Assignable.Id eq #{userStoryId}",
+		"Role.Id eq #{roleId}",
+		# "TeamIteration.id eq #{nextTeamIterationId}",
+		# "Effort eq 0"
+	], {}#include: "[Name, Description, Project, Release, Iteration, TeamIteration, Team, Priority, EntityState]"}
+	makeRequest url, 100, 0, (err, userStories) ->
+		return cb err if err
+		return cb null, userStories[0].Id
 
+setUserStoryEffort = (userStoryId, effort, cb) ->
+	roleId = role_dev
+	getRoleEffortId userStoryId, roleId, (err, roleEffortId) ->
+		return cb err if err
+		url = buildUrl [ "RoleEfforts/#{roleEffortId}" ], [], {}
+
+		postRequest url, {Effort:effort}, (err, body) ->
+			return cb err if err
+			return cb body if body.Effort isnt effort
+			cb null, yes
 
