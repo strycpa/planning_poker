@@ -1,4 +1,5 @@
 j3r = {}
+j3r.listener = new j3r.SimpleListener()
 class j3r.App
   constructor: ->
     @elements =
@@ -13,8 +14,20 @@ class j3r.App
     @user.logIn mail
     return
 
+class j3r.SimpleListener
+  construct ->
+    @listenOn = {}
+    return
+
+  listen: (id, scope, action) ->
+    @listenOn[id] =
+      action: action
+      scope: scope
+    return
+
+  fire: (id, args) ->
+    @listenOn[id].action() if @listenOn?
+    return
 
 j3r.changeContent = (parentEl, content) ->
    parentEl.empty().append(content)
-
-
