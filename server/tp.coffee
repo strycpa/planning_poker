@@ -30,7 +30,7 @@ exports.getUser = (userId, cb) ->
 		return cb null, user
 
 exports.getUserId = (userEmail, cb) ->
-	getUserByEmail userEmail, (err, userId) ->
+	getUserIdByEmail userEmail, (err, userId) ->
 		return cb err if err
 		return cb null, userId
 
@@ -39,6 +39,15 @@ exports.getTeam = (teamId, cb) ->
 		return cb err if err
 		return cb null, team
 
+exports.getTeamIds = (userId, cb) ->
+	getTeamIdsByUserId userId, (err, teamIds) ->
+		return cb err if err
+		return cb null, teamIds
+
+exports.getUserStories = (teamId, cb) ->
+	getUserStoriesByTeamId teamId, (err, userStories) ->
+		return cb err if err
+		return cb null, userStories
 
 
 # make TP API request, it handles paging
@@ -141,22 +150,13 @@ getUserById = (id, cb) ->
 		return cb err if err
 		return cb null, data[0]
 
-getUserByEmail = (email, cb) ->
+getUserIdByEmail = (email, cb) ->
 	url = buildUrl [ "Users" ], [
 		"Email eq '#{email}'"
 	], {include: "[Id, Email, FirstName, LastName, IsActive, AvatarUri, Role]" }
 	makeRequest url, 1, 0, (err, data) ->
 		return cb err if err
 		return cb null, data[0].Id
-
-
-
-
-# getUserById jan_navrat_id, (err, data) ->
-# 	console.log data
-
-# getUserByEmail 'jan.navrat@socialbakers.com', (err, data) ->
-# 	console.log data
 
 
 getTeamMembers = (teamId, cb) ->
@@ -180,26 +180,27 @@ getTeamById = (teamId, cb) ->
 		return cb err if err
 		return cb null, data[0]
 
-# getTeamById team_builder_id, (err, data) ->
-# 	console.log data
-
-getTeamIdByUserId = (userId, cb) ->
+getTeamIdsByUserId = (userId, cb) ->
 	url = buildUrl [ "TeamMembers" ], [
 		"User.id eq #{userId}"
 	], {}
 	makeRequest url, 100, 0, (err, teamMembers) ->
 		return cb err if err
-
 		result = []
 		for teamMember in teamMembers
 			result.push teamMember.Team.Id
-
 		return cb null, result
 
-# getTeamIdByUserId jan_navrat_id, (err, data) ->
-# 	console.log data
+getUserStoriesByTeamId = (teamId, cb) ->
+	url = buildUrl [ "UserStories" ], [
+		"Team.id eq #{teamId}",
+		"Effort eq 0"
+	], {}
+	makeRequest url, 100, 0, (err, userStories) ->
+		return cb err if err
+		return cb null, userStories
+		# result = []
+		# for teamMember in teamMembers
+		# 	result.push teamMember.Team.Id
+		# return cb null, result
 
-
-# teamIterations team_builder_id, (err, data) ->
-# 	console.log "ERR #{err}"
-# 	console.log "DATA #{data}"

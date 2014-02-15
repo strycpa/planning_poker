@@ -11,4 +11,10 @@ tp.getUserId jan_navrat_email, (err, userId) ->
 #	console.log userId
 
 tp.getTeam team_id, (err, team) ->
-	console.log team
+#	console.log team
+
+tp.getTeamIds jan_navrat_id, (err, teamIds) ->
+#	console.log teamIds
+
+tp.getUserStories team_id, (err, userStories) ->
+	console.log userStories
