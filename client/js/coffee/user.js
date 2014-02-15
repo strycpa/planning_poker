@@ -3,7 +3,7 @@ j3r.User = (function() {
   function User(io, elements) {
     this.io = io;
     this.elements = elements;
-    this._listenComunication();
+    this._comunication();
   }
 
   User.prototype.logIn = function(userEmail) {
@@ -13,8 +13,8 @@ j3r.User = (function() {
       mail: this.userEmail
     });
     this.io.on('user_log_reply', function(data) {
-      if (data.logged) {
-        this.chooseTeam(data.rooms);
+      if (data.teams.length > 0) {
+        this.chooseTeam(data.teams);
       }
     });
   };
@@ -51,7 +51,7 @@ j3r.User = (function() {
     });
   };
 
-  User.prototype._listenComunication = function() {
+  User.prototype._comunication = function() {
     this.io.on('user_enter_team', function(data) {
       this.userTeam = data.team;
       if (data.role = 'sm') {
@@ -72,13 +72,15 @@ j3r.SmUser = (function() {
   function SmUser() {}
 
   SmUser.prototype.construct = function(io, elements) {
+    var msg;
     this.io = io;
     this.elements = elements;
-    _listenComunication();
-    this.io.emit('fetch_user_stories');
+    msg = '<div class="msg-info">waitin for us</div>';
+    j3r.changeContent(this.elements.content, msg);
+    _comunication();
   };
 
-  SmUser.prototype._listenComunication = function() {
+  SmUser.prototype._comunication = function() {
     this.io.on('user_stories_list', function(data) {
       var list;
       this.us = new j3r.Us(this.io, data);
@@ -89,6 +91,7 @@ j3r.SmUser = (function() {
         this.us.startVoting(selectedUsId);
       });
     });
+    this.io.emit('fetch_user_stories');
     this.io.on('user_story_estimated', function(data) {
       this.us.addVote(data);
     });
@@ -107,10 +110,61 @@ j3r.MonkeyUser = (function() {
   MonkeyUser.prototype.construct = function(io, elements) {
     this.io = io;
     this.elements = elements;
-    return _listenComunication();
+    this.waitinMessage();
+    return _comunication();
   };
 
-  MonkeyUser.prototype._listenComunication = function() {};
+  MonkeyUser.prototype._comunication = function() {
+    this.io.on('user_story_estimate', function(data) {
+      this.startVoting(data);
+    });
+    return this.io.on('show_estimation', function(data) {
+      this.waitinMessage();
+    });
+  };
+
+  MonkeyUser.prototype.startVoting = function(data) {
+    var wrapper;
+    this.us = new j3r.Us(data);
+    wrapper = $('<div id="voting-header"></div>');
+    wrapper.append(this.us.getUsItem(data.id));
+    j3r.changeContent(this.elements.content, wrapper);
+    this.elements.content.append(this.getNumbers());
+  };
+
+  MonkeyUser.prototype.getNumbers = function() {
+    var cardsTable, cardsWrapper, cell, i, j, numbers, row, selectedCardsWrapper, selection, _i, _j;
+    numbers = [0, 1, 2, 3, 5, 8, 13, 21, '?'];
+    cardsWrapper = $('<div id="cards-wrapper"></div>');
+    selectedCardsWrapper = $('<div id="cards-selected"></div>');
+    cardsTable = $('<table id="cards-table"></table>');
+    for (i = _i = 0; _i <= 2; i = _i += +1) {
+      row = $('<tr></tr>');
+      for (j = _j = 0; _j <= 2; j = _j += +1) {
+        selection = numbers[i + j];
+        cell = $('<td><span class="card-item">' + selection + '</span></td>');
+        cell.on('click', function() {
+          this.io.emit('user_story_estimation', {
+            value: selection
+          });
+          return this.afterSelectedNumber();
+        });
+        row.append(cell);
+      }
+      cardsTable.append(row);
+    }
+    cardsWrapper.append(selectedCardsWrapper);
+    cardsWrapper.append(cardsTable);
+    return cardsTable;
+  };
+
+  MonkeyUser.prototype.afterSelectedNumber = function() {};
+
+  MonkeyUser.prototype.waitinMessage = function() {
+    var msg;
+    msg = '<div class="msg-info">waitin for start of new voting</div>';
+    j3r.changeContent(this.elements.content, msg);
+  };
 
   return MonkeyUser;
 
