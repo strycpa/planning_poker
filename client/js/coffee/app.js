@@ -3,8 +3,6 @@ var j3r;
 
 j3r = {};
 
-j3r.listener = new j3r.SimpleListener();
-
 j3r.App = (function() {
   function App() {
     this.elements = {
@@ -22,30 +20,6 @@ j3r.App = (function() {
   };
 
   return App;
-
-})();
-
-j3r.SimpleListener = (function() {
-  function SimpleListener() {}
-
-  construct(function() {
-    this.listenOn = {};
-  });
-
-  SimpleListener.prototype.listen = function(id, scope, action) {
-    this.listenOn[id] = {
-      action: action,
-      scope: scope
-    };
-  };
-
-  SimpleListener.prototype.fire = function(id, args) {
-    if (this.listenOn != null) {
-      this.listenOn[id].action();
-    }
-  };
-
-  return SimpleListener;
 
 })();
 

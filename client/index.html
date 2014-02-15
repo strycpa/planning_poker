@@ -9,19 +9,19 @@
 	<script src="js/coffee/app.js"></script>
 	<script src="js/coffee/user.js"></script>
 	<script>
+        var login;
         $(document).ready(function(){
             var app = new j3r.App();
             <!--allready login-->
             if(window.localStorage.ppUser != null) {
                 app.logInUser(window.localStorage.ppUser);
             }
-            var login = function(){
+            login = function(){
                 var mail = $('#pp_login').val();
                 window.localStorage.ppUser = mail;
                 app.logInUser(mail);
             }
         });
-
     </script>
 </head>
 <body>

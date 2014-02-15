@@ -1,6 +1,6 @@
 class  j3r.User
   constructor: (@io, @elements) ->
-    @_listenComunication()
+    @_comunication()
 
   logIn: (@userEmail) ->
 #    login loader
@@ -12,8 +12,8 @@ class  j3r.User
 
     #    login response
     @io.on 'user_log_reply', (data) ->
-      if data.logged
-        @chooseTeam data.rooms
+      if data.teams.length > 0
+        @chooseTeam data.teams
       return
     return
 
@@ -43,7 +43,7 @@ class  j3r.User
     @io.emit 'user_choose_team', id: id
     return
 
-  _listenComunication: () ->
+  _comunication: () ->
     @io.on 'user_enter_team', (data) ->
       @userTeam = data.team
       if data.role = 'sm'
@@ -57,11 +57,13 @@ class  j3r.User
 
 class j3r.SmUser
   construct: (@io, @elements) ->
-    _listenComunication()
-    @io.emit 'fetch_user_stories'
+    msg = '<div class="msg-info">waitin for us</div>'
+    j3r.changeContent @elements.content, msg
+    _comunication()
     return
 
-  _listenComunication: ->
+  _comunication: ->
+#    receive us list
     @io.on 'user_stories_list', (data) ->
       @us = new j3r.Us @io, data
       list = @us.getUsList()
@@ -71,7 +73,11 @@ class j3r.SmUser
         @us.startVoting selectedUsId
         return
 
-#    receive votes
+#    send me list of us
+    @io.emit 'fetch_user_stories'
+
+
+    #    receive votes
     @io.on 'user_story_estimated', (data) ->
       @us.addVote data
       return
@@ -88,8 +94,51 @@ class j3r.SmUser
 
 class j3r.MonkeyUser
   construct: (@io, @elements) ->
-    _listenComunication()
+    @waitinMessage()
+    _comunication()
 
-  _listenComunication: ->
+  _comunication: ->
+    @io.on 'user_story_estimate', (data) ->
+      @startVoting data
+      return
+
+    @io.on 'show_estimation', (data) ->
+      @waitinMessage()
+      return
+
+  startVoting: (data) ->
+    @us = new j3r.Us data
+    wrapper = $('<div id="voting-header"></div>')
+    wrapper.append @us.getUsItem data.id
+    j3r.changeContent @elements.content, wrapper
+    @elements.content.append @getNumbers()
+    return
+
+  getNumbers: ->
+    numbers = [0,1,2,3,5,8,13,21,'?']
+    cardsWrapper = $('<div id="cards-wrapper"></div>')
+    selectedCardsWrapper = $('<div id="cards-selected"></div>')
+    cardsTable = $('<table id="cards-table"></table>')
+    for i in [0..2] by +1
+      row = $('<tr></tr>');
+      for j in [0..2] by + 1
+        selection = numbers[i+j]
+        cell = $('<td><span class="card-item">' + selection + '</span></td>')
+        cell.on 'click', ->
+          @io.emit 'user_story_estimation', value: selection
+          @afterSelectedNumber()
+        row.append cell
+      cardsTable.append row
+    cardsWrapper.append selectedCardsWrapper
+    cardsWrapper.append cardsTable
+    cardsTable
+
+#    TODO some mega cool animation
+  afterSelectedNumber: ->
+
+  waitinMessage: () ->
+    msg = '<div class="msg-info">waitin for start of new voting</div>'
+    j3r.changeContent @elements.content, msg
+    return
 
 
