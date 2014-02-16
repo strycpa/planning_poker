@@ -139,6 +139,7 @@ getUserById = (id, cb) ->
 	], {include: "[Id, Email, FirstName, LastName, IsActive, AvatarUri, Role]" }
 	makeRequest url, 1, 0, (err, data) ->
 		return cb err if err
+		return cb data unless data?[0]?
 		return cb null, data[0]
 
 getUserIdByEmail = (email, cb) ->
@@ -147,6 +148,7 @@ getUserIdByEmail = (email, cb) ->
 	], {include: "[Id, Email, FirstName, LastName, IsActive, AvatarUri, Role]" }
 	makeRequest url, 1, 0, (err, data) ->
 		return cb err if err
+		return cb data unless data?[0]?.Id?
 		return cb null, data[0].Id
 
 
@@ -157,6 +159,7 @@ getTeamMembers = (teamId, cb) ->
 	], {include: "[Id, User, Role]"}
 	makeRequest url, 100, 0, (err, data) ->
 		return cb err if err
+		return cb data unless data?
 		return cb null, data
 
 # getTeamMembers team_builder_id, (err, data) ->
@@ -169,6 +172,7 @@ getTeamById = (teamId, cb) ->
 	], {}
 	makeRequest url, 100, 0, (err, data) ->
 		return cb err if err
+		return cb data unless data?[0]?
 		return cb null, data[0]
 
 getTeamIdsByUserId = (userId, cb) ->
@@ -192,6 +196,7 @@ getNextTeamIterationId = (teamId, cb) ->
 	], { orderBy: "StartDate"} #, include: "[Id,StartDate,Duration]" }
 	makeRequest url, 1, 0, (err, data) ->
 		return cb err if err
+		return cb data unless data?[0]?.Id?
 		return cb null, data[0].Id
 
 
@@ -205,6 +210,7 @@ getUserStoriesByTeamId = (teamId, cb) ->
 		], {include: "[Name, Description, Project, Release, Iteration, TeamIteration, Team, Priority, EntityState]"}
 		makeRequest url, 100, 0, (err, userStories) ->
 			return cb err if err
+			return cb userStories unless userStories?
 			return cb null, userStories
 
 
@@ -217,6 +223,7 @@ getRoleEffortId = (userStoryId, roleId, cb) ->
 	], {}#include: "[Name, Description, Project, Release, Iteration, TeamIteration, Team, Priority, EntityState]"}
 	makeRequest url, 100, 0, (err, userStories) ->
 		return cb err if err
+		return cb userStories unless userStories?[0]?.Id?
 		return cb null, userStories[0].Id
 
 setUserStoryEffort = (userStoryId, effort, cb) ->

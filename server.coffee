@@ -48,7 +48,6 @@ app.io.route 'user_log', (req) ->
 				return err if err
 				for teamId in teamIds	#only one team
 					req.session.teamId = teamId
-
 					tp.getTeam teamId, (err, team) ->
 						return err if err
 						team = convertTeam team
