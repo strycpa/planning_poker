@@ -43,10 +43,6 @@ class j3r.Us
     votingInfoWrapper = $('<div id="voting-info"></div>')
     wrapper.append votingInfoWrapper
     j3r.changeContent @elements.content, wrapper
-    @io.on 'user_story_estimated', (data) =>
-      info = $('<div class="user-vote">' + data.user + '<span class="number">' + data.value + '</span></div>')
-      votingInfoWrapper.append info
-      return
     return
 
   addVote: (data) ->

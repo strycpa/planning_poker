@@ -66,11 +66,6 @@ j3r.Us = (function() {
     votingInfoWrapper = $('<div id="voting-info"></div>');
     wrapper.append(votingInfoWrapper);
     j3r.changeContent(this.elements.content, wrapper);
-    this.io.on('user_story_estimated', function(data) {
-      var info;
-      info = $('<div class="user-vote">' + data.user + '<span class="number">' + data.value + '</span></div>');
-      votingInfoWrapper.append(info);
-    });
   };
 
   Us.prototype.addVote = function(data) {

@@ -138,8 +138,7 @@ j3r.MonkeyUser = (function() {
   };
 
   MonkeyUser.prototype.getNumbers = function() {
-    var cardsTable, cardsWrapper, cell, i, j, numbers, row, selectedCardsWrapper, selection, _i, _j,
-      _this = this;
+    var cardsTable, cardsWrapper, cell, i, j, numbers, row, selectedCardsWrapper, selection, _i, _j, _self;
     numbers = [0, 1, 2, 3, 5, 8, 13, 21, '?'];
     cardsWrapper = $('<div id="cards-wrapper"></div>');
     selectedCardsWrapper = $('<div id="cards-selected"></div>');
@@ -147,13 +146,14 @@ j3r.MonkeyUser = (function() {
     for (i = _i = 0; _i <= 2; i = _i += +1) {
       row = $('<tr></tr>');
       for (j = _j = 0; _j <= 2; j = _j += +1) {
-        selection = numbers[i + j];
-        cell = $('<td><div class="card-item"><br>' + selection + '</div></td>');
+        selection = numbers[(i * 3) + j];
+        cell = $('<td><div class="card-item" data-selection="' + selection + '"><br>' + selection + '</div></td>');
+        _self = this;
         cell.on('click', function() {
-          _this.io.emit('user_story_estimation', {
-            value: selection
+          _self.io.emit('user_story_estimation', {
+            value: $(this).find('.card-item').attr('data-selection')
           });
-          return _this.afterSelectedNumber();
+          return _self.afterSelectedNumber();
         });
         row.append(cell);
       }

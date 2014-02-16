@@ -125,11 +125,12 @@ class j3r.MonkeyUser
     for i in [0..2] by +1
       row = $('<tr></tr>');
       for j in [0..2] by + 1
-        selection = numbers[i+j]
-        cell = $('<td><div class="card-item"><br>' + selection + '</div></td>')
-        cell.on 'click', =>
-          @io.emit 'user_story_estimation', value: selection
-          @afterSelectedNumber()
+        selection = numbers[(i*3)+j]
+        cell = $('<td><div class="card-item" data-selection="' + selection + '"><br>' + selection + '</div></td>')
+        _self = @
+        cell.on 'click', ->
+          _self.io.emit 'user_story_estimation', value: $(@).find('.card-item').attr('data-selection')
+          _self.afterSelectedNumber()
         row.append cell
       cardsTable.append row
     cardsWrapper.append selectedCardsWrapper
