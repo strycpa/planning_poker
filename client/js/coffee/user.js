@@ -129,7 +129,7 @@ j3r.MonkeyUser = (function() {
 
   MonkeyUser.prototype.startVoting = function(data) {
     var wrapper;
-    this.us = new j3r.Us(data);
+    this.us = new j3r.Us(this.io, this.elements, data);
     wrapper = $('<div id="voting-header"></div>');
     wrapper.append(this.us.getUsItem(data.id));
     j3r.changeContent(this.elements.content, wrapper);

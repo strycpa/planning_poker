@@ -28,8 +28,9 @@ convertUserStory = (userStory) ->
 	title: userStory.Name
 	description: userStory.Description
 
-isScrummaster = (teamId) ->
-	return yes
+isScrummaster = (req, teamId) ->	#after presentation, remove req
+	return yes if req.session.email is 'petr.jancarik@socialbakers.com'	#presentation
+	return no																														#presentation
 	return yes unless teams[teamId]
 	no
 
@@ -37,7 +38,9 @@ writeToTp = (userStoryId, estimation) ->
 	no
 
 app.io.route 'user_log', (req) ->
-	tp.getUserId req.data.mail, (err, id) ->
+	mail = req.data.mail
+	req.session.email = mail
+	tp.getUserId mail, (err, id) ->
 		return err if err
 		tp.getUser id, (err, user) ->
 			return err if err
@@ -62,7 +65,7 @@ app.io.route 'user_log', (req) ->
 app.io.route 'user_choose_team', (req) ->
 	req.io.join req.session.team
 	req.io.emit 'user_enter_team',
-		role: if isScrummaster req.session.teamId then 'sm' else 'monkey'
+		role: if isScrummaster req, req.session.teamId then 'sm' else 'monkey'
 		team: req.session.team
 
 

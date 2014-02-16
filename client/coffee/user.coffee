@@ -109,7 +109,7 @@ class j3r.MonkeyUser
       return
 
   startVoting: (data) ->
-    @us = new j3r.Us data
+    @us = new j3r.Us @io, @elements, data
     wrapper = $('<div id="voting-header"></div>')
     wrapper.append @us.getUsItem data.id
     j3r.changeContent @elements.content, wrapper
