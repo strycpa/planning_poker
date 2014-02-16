@@ -14,17 +14,17 @@ app.use express.session {secret: 'Socialbakers Planning Poker'}
 
 
 convertUser = (user) ->
-	id: user.Id
+	id: parseInt user.Id
 	email: user.Email
 	name: "#{user.FirstName} #{user.LastName}"
 	role: user.Role.Name
 
 convertTeam = (team) ->
-	id: team.Id
+	id: parseInt team.Id
 	title: team.Name
 
 convertUserStory = (userStory) ->
-	id: userStory.Id
+	id: parseInt userStory.Id
 	title: userStory.Name
 	description: userStory.Description
 
@@ -34,8 +34,6 @@ isScrummaster = (req, teamId) ->	#after presentation, remove req
 	return yes unless teams[teamId]
 	no
 
-writeToTp = (userStoryId, estimation) ->
-	no
 
 app.io.route 'user_log', (req) ->
 	mail = req.data.mail
@@ -64,7 +62,7 @@ app.io.route 'user_log', (req) ->
 
 # zrefaktorovat a odstranit
 app.io.route 'user_choose_team', (req) ->
-	req.io.join req.session.team
+	req.io.join req.session.teamId
 	req.io.emit 'user_enter_team',
 		role: if isScrummaster req, req.session.teamId then 'sm' else 'monkey'
 		team: req.session.team
@@ -84,18 +82,18 @@ app.io.route 'fetch_user_stories', (req) ->
 
 app.io.route 'user_story_for_estimation', (req) ->
 	for userStory in userStories[req.session.teamId]
-		if userStory.id is req.data.id
-			req.io.room(req.session.team).broadcast 'user_story_estimate', userStory
+		if userStory.id is parseInt req.data.id
 			console.log "Estimate user story '#{userStory.title}'"
+			req.io.room(req.session.teamId).broadcast 'user_story_estimate', userStory
 
 
 app.io.route 'user_story_estimation', (req) ->
 	value = req.data.value
 	user = req.session.user
-	estimations[req.session.team] ?= {}
-	estimations[req.session.team][req.data.userStoryId] ?= {}
-	estimations[req.session.team][req.data.userStoryId][user.id] = value
-	req.io.room(req.session.team).broadcast 'user_story_estimated',
+	estimations[req.session.teamId] ?= {}
+	estimations[req.session.teamId][req.data.userStoryId] ?= {}
+	estimations[req.session.teamId][req.data.userStoryId][user.id] = value
+	req.io.room(req.session.teamId).broadcast 'user_story_estimated',
 		user: user.name
 		value: value
 	console.log "#{user.name} thinks #{value} points"
@@ -105,15 +103,15 @@ app.io.route 'user_story_estimation_end', (req) ->
 	tp.setEffort req.data.id, req.data.effort, (err, res) ->
 		return err if err
 		effort = req.data.effort
-		req.io.room(req.session.team).broadcast 'show_effort',
+		req.io.room(req.session.teamId).broadcast 'show_effort',
 			effort: effort
 		console.log "Effort set to #{effort}"
 
 
 app.io.route 'planning_end', (req) ->
-	req.io.room(req.session.team).broadcast 'disconnect'
-	delete userStories[req.session.team]
-	delete estimations[req.session.team]
+	req.io.room(req.session.teamId).broadcast 'disconnect'
+	delete userStories[req.session.teamId]
+	delete estimations[req.session.teamId]
 	console.log "Planning of #{team.title} ended"
 
 	
