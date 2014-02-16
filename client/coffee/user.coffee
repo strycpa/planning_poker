@@ -4,7 +4,7 @@ class  j3r.User
 
   logIn: (@userEmail) ->
 #    login loader
-    j3r.changeContent @elements.content, 'loguju'
+    j3r.changeContent @elements.content, $('<div class="msg-info component">loguju</div>')
 
     #    login request
     @io.emit 'user_log',
@@ -36,7 +36,7 @@ class  j3r.User
         ulEl.append liEl
       teamsEl.append ulEl
     else
-      teamsEl.append $('<div id="msg-info">You are in none of our fucking teams</div>')
+      teamsEl.append $('<div class="msg-info component">You are in none of our fucking teams</div>')
     j3r.changeContent @elements.content, teamsEl
     return
 
@@ -58,7 +58,7 @@ class  j3r.User
 
 class j3r.SmUser
   constructor: (@io, @elements) ->
-    msg = '<div class="msg-info">waitin for us</div>'
+    msg = '<div class="msg-info component">waitin for us</div>'
     j3r.changeContent @elements.content, msg
     @_comunication()
     return
@@ -69,9 +69,10 @@ class j3r.SmUser
       @us = new j3r.Us @io, @elements, data
       list = @us.getUsList()
       j3r.changeContent @elements.content, list
-      list.next('li').on 'click', =>
-        selectedUsId = @.next('.us-item').attr('data-us-item-id')
-        @us.startVoting selectedUsId
+      _self = @
+      list.find('li').on 'click', ->
+        selectedUsId = $(@).find('.us-item').attr('data-us-item-id')
+        _self.us.startVoting selectedUsId
         return
       return
 
@@ -109,7 +110,7 @@ class j3r.MonkeyUser
       return
 
   startVoting: (data) ->
-    @us = new j3r.Us @io, @elements, data
+    @us = new j3r.Us data
     wrapper = $('<div id="voting-header"></div>')
     wrapper.append @us.getUsItem data.id
     j3r.changeContent @elements.content, wrapper
@@ -139,7 +140,7 @@ class j3r.MonkeyUser
   afterSelectedNumber: ->
 
   waitinMessage: () ->
-    msg = '<div class="msg-info">waitin for start of new voting</div>'
+    msg = '<div class="msg-info component">waitin for start of new voting</div>'
     j3r.changeContent @elements.content, msg
     return
 

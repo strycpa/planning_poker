@@ -9,7 +9,7 @@ j3r.User = (function() {
   User.prototype.logIn = function(userEmail) {
     var _this = this;
     this.userEmail = userEmail;
-    j3r.changeContent(this.elements.content, 'loguju');
+    j3r.changeContent(this.elements.content, $('<div class="msg-info component">loguju</div>'));
     this.io.emit('user_log', {
       mail: this.userEmail
     });
@@ -43,7 +43,7 @@ j3r.User = (function() {
       }
       teamsEl.append(ulEl);
     } else {
-      teamsEl.append($('<div id="msg-info">You are in none of our fucking teams</div>'));
+      teamsEl.append($('<div class="msg-info component">You are in none of our fucking teams</div>'));
     }
     j3r.changeContent(this.elements.content, teamsEl);
   };
@@ -77,7 +77,7 @@ j3r.SmUser = (function() {
     var msg;
     this.io = io;
     this.elements = elements;
-    msg = '<div class="msg-info">waitin for us</div>';
+    msg = '<div class="msg-info component">waitin for us</div>';
     j3r.changeContent(this.elements.content, msg);
     this._comunication();
     return;
@@ -86,14 +86,15 @@ j3r.SmUser = (function() {
   SmUser.prototype._comunication = function() {
     var _this = this;
     this.io.on('user_stories_list', function(data) {
-      var list;
+      var list, _self;
       _this.us = new j3r.Us(_this.io, _this.elements, data);
       list = _this.us.getUsList();
       j3r.changeContent(_this.elements.content, list);
-      list.next('li').on('click', function() {
+      _self = _this;
+      list.find('li').on('click', function() {
         var selectedUsId;
-        selectedUsId = _this.next('.us-item').attr('data-us-item-id');
-        _this.us.startVoting(selectedUsId);
+        selectedUsId = $(this).find('.us-item').attr('data-us-item-id');
+        _self.us.startVoting(selectedUsId);
       });
     });
     this.io.emit('fetch_user_stories');
@@ -129,7 +130,7 @@ j3r.MonkeyUser = (function() {
 
   MonkeyUser.prototype.startVoting = function(data) {
     var wrapper;
-    this.us = new j3r.Us(this.io, this.elements, data);
+    this.us = new j3r.Us(data);
     wrapper = $('<div id="voting-header"></div>');
     wrapper.append(this.us.getUsItem(data.id));
     j3r.changeContent(this.elements.content, wrapper);
@@ -167,7 +168,7 @@ j3r.MonkeyUser = (function() {
 
   MonkeyUser.prototype.waitinMessage = function() {
     var msg;
-    msg = '<div class="msg-info">waitin for start of new voting</div>';
+    msg = '<div class="msg-info component">waitin for start of new voting</div>';
     j3r.changeContent(this.elements.content, msg);
   };
 

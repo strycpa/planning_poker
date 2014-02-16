@@ -3,60 +3,74 @@ var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments)
 
 j3r.Us = (function() {
   function Us(io, elements, data) {
+    var item, _i, _len;
     this.io = io;
     this.elements = elements;
-    this.data = data;
     this.startVoting = __bind(this.startVoting, this);
+    this.hasUs = data.length > 0 ? true : false;
+    this.data = {};
+    for (_i = 0, _len = data.length; _i < _len; _i++) {
+      item = data[_i];
+      this.data[item.id] = item;
+    }
+    return;
   }
 
   Us.prototype.getUsList = function() {
-    var itemData, liEl, ulEl, usEl, _i, _len, _ref;
-    usEl = $('<div id="list-choose-us"></div>');
-    if (this.data.length > 0) {
+    var id, itemData, liEl, ulEl, usEl, _ref;
+    usEl = $('<div id="list-choose-us" class="component"></div>');
+    if (this.hasUs) {
       ulEl = $('<ul></ul>');
       _ref = this.data;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        itemData = _ref[_i];
+      for (id in _ref) {
+        itemData = _ref[id];
         liEl = $('<li></li>');
         liEl.append(this.getUsItem(itemData));
         ulEl.append(liEl);
       }
       usEl.append(ulEl);
     } else {
-      usEl.append($('<div id="msg-info">no work. go and fuck yourself</div>'));
+      usEl.append($('<div class="msg-info component">no work. go and fuck yourself</div>'));
     }
     return usEl;
   };
 
   Us.prototype.getUsItem = function(itemData) {
     var usItem;
-    return usItem = $('<div class="us-item" data-us-item-id="' + itemData.id + '"><span class="us-item-title">\
-          ' + itemData.title + '</span><br>' + itemData.description + '</div>');
+    return usItem = $((itemData.description != null) + '</div>' ? '<div class="us-item" data-us-item-id="' + itemData.id + '"><span class="us-item-title">\
+          ' + itemData.title + '</span><br>' + itemData.description : void 0);
   };
 
   Us.prototype.startVoting = function(id) {
-    var confirmBtn, inputConfirm, wrapper,
+    var confirmBtn, inputConfirm, votingInfoWrapper, wrapper,
       _this = this;
     this.io.emit('user_story_for_estimation', {
-      id: this.item.id
+      id: id
     });
-    wrapper = $('<div id="voting-header"></div>');
-    wrapper.append(this.item.getUsItem(id, this.data[id]));
+    wrapper = $('<div id="voting-header" class="component"></div>');
+    wrapper.append(this.getUsItem(this.data[id]));
+    wrapper.append($('<br>'));
     inputConfirm = $('<input id="voting-input">');
     confirmBtn = $('<button id="voting-confirm">Confirm voting</button>');
     wrapper.append(inputConfirm);
     wrapper.append(confirmBtn);
     confirmBtn.on('click', function() {
       if (inputConfirm.val() !== '') {
-        return _this.io.emit('user_story_estimation_end', {
+        _this.io.emit('user_story_estimation_end', {
           estimation: inputConfirm.val()
         });
       } else {
-        return console.log('cislo vole');
+        console.log('cislo vole');
       }
     });
-    wrapper.apend($('<div id="voting-info"></div>'));
+    votingInfoWrapper = $('<div id="voting-info"></div>');
+    wrapper.append(votingInfoWrapper);
     j3r.changeContent(this.elements.content, wrapper);
+    this.io.on('user_story_estimated', function(data) {
+      var info;
+      info = $('<div class="user-vote">' + data.user + '<span class="number">' + data.value + '</span></div>');
+      votingInfoWrapper.append(info);
+    });
   };
 
   Us.prototype.addVote = function(data) {
