@@ -4,6 +4,23 @@ body {
     font-family: sans-serif;
 }
 
+button{
+    color: #000000;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    background: #F7A398;
+    padding: 5px;
+}
+
+button:hover {
+    background: #F6C7B7;
+}
+
+input {
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+
 #main-wrapper{
     width: 100%;
     height: 100%;
@@ -59,9 +76,8 @@ body {
 
 .component ul {
     margin: 0px;
-    padding: 0px;
     list-style: none;
-    padding-bottom: 20px;
+    padding: 0 0 20px 0;
 
 }
 
@@ -72,6 +88,7 @@ body {
     background: #050505;
     font-size: 18px;
     vertical-align: middle;
+    cursor: pointer;
 }
 
 .component li:last-child {
@@ -83,8 +100,38 @@ body {
     color: #000;
 }
 
+.msg-info {
+    border: 1px solid #F7A398;
+    padding: 10px;
+    max-width: 50%;
+}
+
+#voting-header .us-item {
+    text-align: center;
+    border: 0px;
+    background: #F6C7B7;
+    color: #000;
+    border-top-left-radius: 5px;
+    -webkit-border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
+}
+#voting-header .us-item:hover {
+    background: #F6C7B7;
+    color: #000;
+}
+
+#voting-header input, #voting-header button {
+    margin: 5px;
+}
+
+#list-choose-us{
+    padding: 10px 0;
+}
+
 .us-item{
-    height: 40px;
+    min-height: 35px;
+    padding: 5px;
     border-left: 5px solid #F7A398;
     border-top-left-radius: 0px;
     -webkit-border-top-left-radius: 0px;

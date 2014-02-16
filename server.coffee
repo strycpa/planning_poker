@@ -55,6 +55,7 @@ app.io.route 'user_log', (req) ->
 					tp.getTeam teamId, (err, team) ->
 						return err if err
 						team = convertTeam team
+						console.log "#{user.name} logged to #{team.title} planning"
 						teams[teamId] = team
 						req.session.team = team
 						req.io.join team
@@ -62,7 +63,7 @@ app.io.route 'user_log', (req) ->
 						req.io.emit 'user_log_reply',
 							teams: [team]
 
-
+# zrefaktorovat a odstranit
 app.io.route 'user_choose_team', (req) ->
 	req.io.join req.session.team
 	req.io.emit 'user_enter_team',
@@ -72,6 +73,7 @@ app.io.route 'user_choose_team', (req) ->
 
 app.io.route 'fetch_user_stories', (req) ->
 	tp.getUserStories req.session.teamId, (err, stories) ->
+		console.log "Fetched #{stories.length} user stories"
 		return err if err
 		for story in stories
 			story = convertUserStory story
@@ -85,33 +87,36 @@ app.io.route 'user_story_for_estimation', (req) ->
 	for userStory in userStories[req.session.teamId]
 		if userStory.id is req.data.id
 			req.io.room(req.session.team).broadcast 'user_story_estimate', userStory
+			console.log "Estimate user story '#{userStory.title}'"
 
 
 app.io.route 'user_story_estimation', (req) ->
 	value = req.data.value
-	user = req.session.user.id
-	estimations[req.session.team][req.data.userStoryId][user] = value
+	user = req.session.user
+	estimations[req.session.team] ?= {}
+	estimations[req.session.team][req.data.userStoryId] ?= {}
+	estimations[req.session.team][req.data.userStoryId][user.id] = value
 	req.io.room(req.session.team).broadcast 'user_story_estimated',
-		user: user
+		user: user.name
 		value: value
+	console.log "#{user.name} thinks #{value} points"
 
 
 app.io.route 'user_story_estimation_end', (req) ->
 	tp.setEffort req.data.id, req.data.effort, (err, res) ->
 		return err if err
+		effort = req.data.effort
 		req.io.room(req.session.team).broadcast 'show_effort',
-			effort: req.data.effort
+			effort: effort
+		console.log "Effort set to #{effort}"
 
 
 app.io.route 'planning_end', (req) ->
 	req.io.room(req.session.team).broadcast 'disconnect'
 	delete userStories[req.session.team]
 	delete estimations[req.session.team]
+	console.log "Planning of #{team.title} ended"
 
-
-## send
-#app.get '/', (req, res) ->
-#	res.sendfile __dirname + '/client.html'
-
+	
 console.log 'Listening at http://localhost:2014/'
 app.listen 2014
