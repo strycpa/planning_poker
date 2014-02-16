@@ -46,6 +46,7 @@ app.io.route 'user_log', (req) ->
 			return err if err
 			user = convertUser user
 			req.session.user = user
+			console.log "User logged: #{user.name} (#{user.role})"
 
 			tp.getTeamIds user.id, (err, teamIds) ->
 				return err if err
