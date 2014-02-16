@@ -110,5 +110,5 @@ app.io.route 'planning_end', (req) ->
 #app.get '/', (req, res) ->
 #	res.sendfile __dirname + '/client.html'
 
-
+console.log 'Listening at http://localhost:2014/'
 app.listen 2014
