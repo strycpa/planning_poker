@@ -75,7 +75,7 @@ j3r.Us = (function() {
 
   Us.prototype.addVote = function(data) {
     var voteInfo;
-    voteInfo = $('<div class="vote-info">' + data.user + ': <strong>' + id.value + '</strong></div>');
+    voteInfo = $('<div class="vote-info">' + data.user + ': <strong>' + data.value + '</strong></div>');
     this.elements.content.append(voteInfo);
   };
 

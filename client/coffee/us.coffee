@@ -50,6 +50,6 @@ class j3r.Us
     return
 
   addVote: (data) ->
-    voteInfo = $('<div class="vote-info">' + data.user + ': <strong>' + id.value + '</strong></div>')
+    voteInfo = $('<div class="vote-info">' + data.user + ': <strong>' + data.value + '</strong></div>')
     @elements.content.append voteInfo
     return
