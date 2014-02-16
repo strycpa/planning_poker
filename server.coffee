@@ -72,10 +72,10 @@ app.io.route 'fetch_user_stories', (req) ->
 	tp.getUserStories req.session.teamId, (err, stories) ->
 		console.log "Fetched #{stories.length} user stories"
 		return err if err
+		userStories ?= {}
+		userStories[req.session.teamId] ?= []
 		for story in stories
 			story = convertUserStory story
-			userStories ?= {}
-			userStories[req.session.teamId] ?= []
 			userStories[req.session.teamId].push story
 		req.io.emit 'user_stories_list', userStories[req.session.teamId]
 
