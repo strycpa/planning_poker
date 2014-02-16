@@ -148,7 +148,7 @@ j3r.MonkeyUser = (function() {
       row = $('<tr></tr>');
       for (j = _j = 0; _j <= 2; j = _j += +1) {
         selection = numbers[i + j];
-        cell = $('<td><span class="card-item">' + selection + '</span></td>');
+        cell = $('<td><div class="card-item"><br>' + selection + '</div></td>');
         cell.on('click', function() {
           _this.io.emit('user_story_estimation', {
             value: selection

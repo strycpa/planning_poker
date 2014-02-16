@@ -126,7 +126,7 @@ class j3r.MonkeyUser
       row = $('<tr></tr>');
       for j in [0..2] by + 1
         selection = numbers[i+j]
-        cell = $('<td><span class="card-item">' + selection + '</span></td>')
+        cell = $('<td><div class="card-item"><br>' + selection + '</div></td>')
         cell.on 'click', =>
           @io.emit 'user_story_estimation', value: selection
           @afterSelectedNumber()
