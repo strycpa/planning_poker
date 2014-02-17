@@ -86,7 +86,7 @@ class j3r.SmUser
       return
 
 #    after voting...init new
-    @io.on 'show-estimation', (data) =>
+    @io.on 'show_effort', (data) =>
       @io.emit 'fetch_user_stories'
       return
 
@@ -105,7 +105,7 @@ class j3r.MonkeyUser
       @startVoting data
       return
 
-    @io.on 'show_estimation', (data) =>
+    @io.on 'show_effort', (data) =>
       @waitinMessage()
       return
 

@@ -36,7 +36,7 @@ class j3r.Us
 #    action after confirm voting
     confirmBtn.on 'click', =>
       if inputConfirm.val() != ''
-        @io.emit 'user_story_estimation_end', estimation: inputConfirm.val()
+        @io.emit 'user_story_estimation_end', effort: inputConfirm.val()
       else
         console.log 'cislo vole'
       return

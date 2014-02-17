@@ -57,7 +57,7 @@ j3r.Us = (function() {
     confirmBtn.on('click', function() {
       if (inputConfirm.val() !== '') {
         _this.io.emit('user_story_estimation_end', {
-          estimation: inputConfirm.val()
+          effort: inputConfirm.val()
         });
       } else {
         console.log('cislo vole');

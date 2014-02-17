@@ -101,7 +101,7 @@ j3r.SmUser = (function() {
     this.io.on('user_story_estimated', function(data) {
       _this.us.addVote(data);
     });
-    this.io.on('show-estimation', function(data) {
+    this.io.on('show_effort', function(data) {
       _this.io.emit('fetch_user_stories');
     });
   };
@@ -123,7 +123,7 @@ j3r.MonkeyUser = (function() {
     this.io.on('user_story_estimate', function(data) {
       _this.startVoting(data);
     });
-    return this.io.on('show_estimation', function(data) {
+    return this.io.on('show_effort', function(data) {
       _this.waitinMessage();
     });
   };
